@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Breast Cancer Prediction</title>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1>Breast Cancer Prediction</h1>
+
+<!-- 화면 전체를 request로 던져서 특정 값만 가져와서 특정부분만 갱신 (javascript이용)  -->
+
+        <!-- Form -->
+        <form id="predictionForm" class="mt-4">
+            <!-- Texture Mean Input -->
+            <div class="mb-3">
+                <label for="textureMeanInput" class="form-label">Texture Mean:</label>
+                <input type="text" class="form-control" id="textureMeanInput" name="texture_mean" required>
+            </div>
+
+            <!-- Perimeter Mean Input -->
+            <div class="mb-3">
+                <label for="perimeterMeanInput" class="form-label">Perimeter Mean:</label>
+                <input type="text" class="form-control" id="perimeterMeanInput" name="perimeter_mean" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary" id="predict">Predict</button>
+            <!-- predict 버튼 눌르면 가로채가도록 만들기  -->
+        </form>
+
+        <!-- Result Display -->
+        <div id="resultDisplay" class="mt-4"></div>
+
+    </div>
+</body>
+<script>
+    let predictObject = document.querySelector('#predict')
+    predictObject.addEventListener('click', (event)=>{
+        event.preventDefault(); //submit 정지
+        let texture_mean = document.querySelector('#textureMeanInput').value; //값 담아 
+        let perimeter_mean = document.querySelector('#perimeterMeanInput').value;
+
+        let request_dict = {"texture_mean": texture_mean 
+                         , "perimeter_mean": perimeter_mean}
+        // console.log(`request_dict : ${request_dict}`)
+
+
+        //request backend and then return dict 
+     fetch('http://127.0.0.1:8000/api_v1/mlmodelwithregression', {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json'
+     },
+     body: JSON.stringify(request_dict)
+   })
+     //fetch: uri, method, json으로 변환해서 
+   .then(response => response.json())
+   .then(data => {
+     console.log(data) //값을 보여주는 곳 
+     // Display the result in the resultDisplay div
+     document.querySelector('#resultDisplay').innerHTML = `Radius Mean : ${data.radius_mean}`;
+   })      
+     // {dict.key}
+   .catch(error => console.error(error));
+    });
+     // predict를 이벤트로 가져옴
+     // id: # , class:. , tag:그대로 사용 
+     // https://github.com/yojulab/study_javascripts/blob/main/docs/browser_js/js/carinforwithrest.js
+</script>
+
+</html>
